@@ -49,5 +49,14 @@ const users = [
 ];
 
 asyncFilterPromise(users, checkAccess)
-  .then((result) => console.log("Users with access:", result))
-  .catch((error) => console.error("An error occurred:", error));
+  .then((result) => {
+    console.log("Users with access:", result);
+  })
+  .catch((error) => {
+    if (error instanceof AggregateError) {
+      console.error("Errors occurred:", error.errors); // Перелік помилок
+      console.log("Users with access:", error.successfulResults); // Успішні результати
+    } else {
+      console.error("An unexpected error occurred:", error);
+    }
+  });
