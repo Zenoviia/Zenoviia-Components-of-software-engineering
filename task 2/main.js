@@ -20,7 +20,10 @@ const asyncFilterPromise = (array, asyncFunction) => {
       .map((result) => result.reason);
 
     if (errors.length > 0) {
-      const aggregateError = new AggregateError(errors, "Some promises were rejected");
+      const aggregateError = new AggregateError(
+        errors,
+        "Some promises were rejected"
+      );
       aggregateError.successfulResults = successfulResults;
       throw aggregateError;
     }
