@@ -1,4 +1,4 @@
-const fs = require('fs');
+const fs = require("fs");
 
 // Функція для генерації масиву об'єктів
 const generateArray = (num) => {
@@ -17,10 +17,10 @@ const generateArray = (num) => {
 const data = generateArray(100);
 
 // Запис масиву у новий файл JSON
-fs.writeFile('data.json', JSON.stringify(data, null, 2), (err) => {
+fs.writeFile("data.json", JSON.stringify(data, null, 2), (err) => {
   if (err) {
-    console.error('Error writing file:', err);
+    console.error("Error writing file:", err);
   } else {
-    console.log('File has been saved!');
+    console.log("File has been saved!");
   }
 });
