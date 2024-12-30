@@ -3,9 +3,19 @@
 
 "use strict";
 
-const asyncFilter = (array, asyncFunction) => {
-
-};
+const asyncFilter = async (array, asyncFunction) => {
+    const controller = new AbortController();
+    const {signal} = controller;
+    setTimeout(() => {
+        controller.abort()
+    }, 100)
+    for (const element of array) {
+        if (signal.aborted) {
+            throw new Error(`Aborted before processing element "${element}"!`)
+        }
+        const filterArray = await asyncFunction(element, signal)
+    }
+}
 
 const customFilter = (item) => {
     return item;
