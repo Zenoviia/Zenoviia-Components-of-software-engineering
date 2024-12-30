@@ -51,12 +51,6 @@ const checkAccess = (user, index, signal) => {
   });
 };
 
-const users = [
-  { id: 1, name: "Alice", hasAccess: true },
-  { id: 2, name: "Bob", hasAccess: false },
-  { id: 3, name: "Charlie", hasAccess: true },
-];
-
 const controller = new AbortController();
 const { signal } = controller;
 
