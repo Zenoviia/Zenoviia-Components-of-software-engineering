@@ -7,7 +7,8 @@ const asyncFilter = async (array, asyncFunction) => {
     const results = [];
     const controller = new AbortController();
     const {signal} = controller;
-    const timeoutId = setTimeout(() => {
+
+    setTimeout(() => {
         controller.abort();
     }, 500);
 
@@ -15,18 +16,18 @@ const asyncFilter = async (array, asyncFunction) => {
         if (signal.aborted) {
             throw new Error(`Aborted before processing element "${element}"!`);
         }
-        const filterArray = await asyncFunction(element, signal);
-        results.push(filterArray);
+        if (await asyncFunction(element, signal)) {
+            results.push(element);
+            console.log("Processed Element:", element);
+        }
+
         await new Promise((resolve) => setTimeout(resolve, 30));
     }
     return {results};
 }
 
 const customFilter = (item) => {
-    if (item > 10) {
-        return "Too big number"
-    }
-    return item
+    return item % 10 === 0;
 }
 
 const array = Array.from({length: 100}, (_, index) => index);
