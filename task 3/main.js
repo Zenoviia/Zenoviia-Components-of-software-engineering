@@ -3,21 +3,8 @@
 
 "use strict";
 
-import { users } from "./data.js";
-
-// const users = require("./data.js")
-
-const asyncFilterPromise = (array, asyncFunction, abortTime) => {
-  const controller = new AbortController();
-  const { signal } = controller;
-  const promises = array.map((item, index) =>
-    asyncFunction(item, index, signal)
-  );
-
-  // Таймер для виклику аборту після певного часу
-  setTimeout(() => {
-    controller.abort();
-  }, abortTime);
+const asyncFilterPromise = (array, asyncFunction) => {
+  const promises = array.map((item, index) => asyncFunction(item, index));
 
   return Promise.allSettled(promises).then((results) => {
     const successfulResults = results
@@ -38,83 +25,33 @@ const asyncFilterPromise = (array, asyncFunction, abortTime) => {
     }
 
     return successfulResults;
-  }).catch((error) => {
-    if (error.name === 'AbortError') {
-      throw new Error('Operation aborted due to timeout');
-    }
-    throw error; // Перехоплюємо інші помилки
   });
 };
 
-const checkAccess = (user, index, signal) => {
+const checkAccess = (user) => {
   return new Promise((resolve, reject) => {
-    const timeout = setTimeout(() => {
-      if (signal.aborted) {
-        reject(new Error(`Aborted processing user ${user.name}`));
-      } else {
-        user.hasAccess
-          ? resolve(user)
-          : reject(`User ${user.name} (ID: ${user.id}) does not have access`);
-      }
-    }, 100);
-
-    // Перевірка на аборт до виконання
-    signal.addEventListener("abort", () => {
-      clearTimeout(timeout);
-      reject(new Error(`Aborted processing user ${user.name}`));
-    });
+    setTimeout(() => {
+      user.hasAccess
+        ? resolve(user)
+        : reject(`User ${user.name} (ID: ${user.id}) does not have access`);
+    }, 1000);
   });
 };
 
-const asyncForEach = async (array, abortTime, fn) => {
-  const controller = new AbortController();
-  const { signal } = controller;
+const users = [
+  { id: 1, name: "Alice", hasAccess: true },
+  { id: 2, name: "Bob", hasAccess: false },
+  { id: 3, name: "Charlie", hasAccess: true },
+];
 
-  // Таймер для аборту після певного часу
-  setTimeout(() => {
-    controller.abort();
-  }, abortTime);
-
-  for (const item of array) {
-    if (signal.aborted) {
-      throw new Error(`Operation aborted after ${abortTime}ms`);
-    }
-    try {
-      const result = await fn(item, signal);
-      if (result) {
-        console.log(`User ${result.name} (ID: ${result.id}) has access`);
-      } else {
-        console.log("No result for user:", item.name);
-      }
-    } catch (err) {
-      console.log(err.message); // Виводимо повідомлення про помилку
-    }
-    console.log(); // Перехід на новий рядок після кожної обробки елемента
-  }
-};
-
-asyncForEach(
-  users,
-  1000, // Час на виконання кожної операції
-  async (user, signal) => {
-    if (signal.aborted) {
-      throw new Error(`Aborted processing user ${user.name}`);
-    } else {
-      try {
-        const result = await checkAccess(user, 0, signal);
-        return result; // Повертаємо результат, щоб його можна було вивести
-      } catch (err) {
-        throw err; // Переводимо помилку далі для обробки
-      }
-    }
-  }
-)
-  .then(() => {
-    console.log("All operations completed.");
+asyncFilterPromise(users, checkAccess)
+  .then((result) => {
+    console.log("Users with access:", result);
   })
   .catch((error) => {
-    if (error.name === 'AbortError') {
-      console.error("Operation was aborted!");
+    if (error instanceof AggregateError) {
+      console.error("Errors occurred:", error.errors); // Перелік помилок
+      console.log("Users with access:", error.successfulResults); // Успішні результати
     } else {
       console.error("An unexpected error occurred:", error);
     }
