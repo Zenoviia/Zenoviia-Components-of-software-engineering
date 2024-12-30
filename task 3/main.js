@@ -3,6 +3,8 @@
 
 "use strict";
 
+import { users } from "./data.js";
+
 const asyncFilterPromise = (array, callback, signal) => {
   const promises = array.map((item, index) => {
     if (signal?.aborted) {
