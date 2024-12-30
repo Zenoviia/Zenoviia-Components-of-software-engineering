@@ -38,11 +38,7 @@ const checkAccess = (user) => {
   });
 };
 
-const users = [
-  { id: 1, name: "Alice", hasAccess: true },
-  { id: 2, name: "Bob", hasAccess: false },
-  { id: 3, name: "Charlie", hasAccess: true },
-];
+const array = Array.from({ length: 100 }, (_, index) => index);
 
 asyncFilterPromise(users, checkAccess)
   .then((result) => {
