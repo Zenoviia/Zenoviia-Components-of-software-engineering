@@ -10,18 +10,18 @@ const asyncFilter = async (array, asyncFunction) => {
 
     setTimeout(() => {
         controller.abort();
-    }, 500);
+    }, 5000);
 
     for (const element of array) {
         if (signal.aborted) {
             throw new Error(`Aborted before processing element "${element}"!`);
         }
+        console.log("Processed Element:", element);
         if (await asyncFunction(element, signal)) {
             results.push(element);
-            console.log("Processed Element:", element);
         }
 
-        await new Promise((resolve) => setTimeout(resolve, 30));
+        await new Promise((resolve) => setTimeout(resolve, 70));
     }
     return {results};
 }
@@ -36,5 +36,5 @@ asyncFilter(array, async (item, signal) => {
     if (signal.aborted) {
         throw new Error(`Aborted before processing element "${item}"!`);
     } else return customFilter(item);
-}).then((res) => console.log(res))
+}).then((res) => console.log("Filtered array: ", res))
     .catch((err) => console.log(err))
