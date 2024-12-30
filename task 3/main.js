@@ -7,9 +7,10 @@ const asyncFilter = async (array, asyncFunction) => {
     const results = [];
     const controller = new AbortController();
     const {signal} = controller;
-    setTimeout(() => {
+    const timeoutId = setTimeout(() => {
         controller.abort();
-    }, 3500);
+    }, 500);
+
     for (const element of array) {
         if (signal.aborted) {
             throw new Error(`Aborted before processing element "${element}"!`);
